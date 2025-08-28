@@ -1,0 +1,20 @@
+# Build outputs
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Generated files
+coverage/
+
+# OS files
+.DS_Store
+
+# Lock files
+bun.lockb
+package-lock.json
+yarn.lock
