@@ -1,6 +1,7 @@
 # Build outputs
 dist/
 build/
+tasks/*.md
 
 # Dependencies
 node_modules/
