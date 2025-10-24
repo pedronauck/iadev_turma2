@@ -167,14 +167,41 @@ backend/
 
 ## Testes
 
-Os testes cobrem:
-- ✅ Criação de produtos (POST /api/products)
-- ✅ Listagem de produtos (GET /api/products)
-- ✅ Busca por ID (GET /api/products/:id)
-- ✅ Validação de dados inválidos
-- ✅ Tratamento de SKU duplicado
-- ✅ Campos obrigatórios
-- ✅ Health check
-- ✅ Configuração CORS
+A suite de testes de integração completa está em `src/products.test.ts` usando **Bun Test** nativo.
 
-Execute com `bun test` para rodar todos os testes.
+### Cobertura dos Testes:
+
+**POST /api/products:**
+- ✅ Criação de produto com sucesso (201)
+- ✅ Validação de nome vazio (400)
+- ✅ Validação de descrição ausente (400)
+- ✅ Validação de preço negativo (400)
+- ✅ Validação de preço zero (400)
+- ✅ Validação de SKU vazio (400)
+- ✅ Tratamento de SKU duplicado (400)
+
+**GET /api/products:**
+- ✅ Lista vazia quando não há produtos
+- ✅ Lista todos os produtos cadastrados
+
+**GET /api/products/:id:**
+- ✅ Busca produto por ID existente
+- ✅ Retorna 404 para ID inexistente
+
+**CORS:**
+- ✅ Headers CORS configurados corretamente
+
+### Executar Testes:
+
+```bash
+# Rodar todos os testes
+bun test
+
+# Rodar apenas testes de produtos
+bun test src/products.test.ts
+
+# Modo watch
+bun test --watch
+```
+
+**Resultado:** 12 testes | 45 assertions | ~35ms

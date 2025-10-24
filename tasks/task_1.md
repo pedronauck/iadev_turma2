@@ -1,5 +1,5 @@
 <role>
-Você é um engenheiro de software sênior. Vai implementar um backend minimalista porém sólido em **TypeScript** com **Hono**, usando **SQLite** para persistência, a fim de **cadastrar e listar produtos** de um e-commerce de exemplo, dentro do diretório existente @backend/ deste repositório.
+Você é um engenheiro de software sênior. Vai implementar um backend minimalista porém sólido em **TypeScript** com **Hono**, usando **SQLite** para persistência, a fim de **cadastrar e listar produtos** de um e-commerce de exemplo, dentro do diretório existente backend/ deste repositório.
 </role>
 
 <product_model>
@@ -16,7 +16,7 @@ export type Product = {
 </product_model>
 
 <instructions>
-Implemente dentro de @backend/ (não criar novo projeto), mantendo o setup atual, com o mínimo necessário para um live coding fluido:
+Implemente dentro de backend/ (não criar novo projeto), mantendo o setup atual, com o mínimo necessário para um live coding fluido:
 - API REST com **Hono 4+**.
 - Banco local **SQLite** 
 - Validação com **Zod**.
@@ -25,11 +25,11 @@ Implemente dentro de @backend/ (não criar novo projeto), mantendo o setup atual
 - Modelo de Produto: <product_model>.
 - Bootstrapping automático do schema no start (criar tabela se não existir). Seed é opcional.
 - Scripts existentes (`dev`, `build`, `start`) devem continuar funcionando.
-- Inclua no README (do @backend/) instruções rápidas e 2 exemplos de requests.
+- Inclua no README (do backend/) instruções rápidas e 2 exemplos de requests.
 </instructions>
 
 <requirements>
-- Linguagem: TypeScript, alinhado com @backend.
+- Linguagem: TypeScript, alinhado com bbackend.
 - Sem ORM, usando queries explicitas.
 - CORS liberado para `http://localhost:5173` (Vite do frontend).
 - Config via `.env` (ex.: `PORT=3005`, `DATABASE_URL` com caminho do SQLite).
@@ -41,14 +41,14 @@ Implemente dentro de @backend/ (não criar novo projeto), mantendo o setup atual
 Além de implementar, você deve mostrar no final um resultado daquilo que foi efetuado
 </output>
 
-<constraints>
+<critical>
 - **NÃO DEVE:** Fazer placeholders no banco de dados.
 - **NÃO DEVE:** Não mudar o schema do Produto.
 - **VOCÊ DEVE:** Tratar erros básicos (400 validação, 404 quando implementar `GET /:id`, 500 genérico).
-</constraints>
+</critical>
 
 <acceptance_criteria>
-- No diretório @backend/, `bun run dev` inicia o servidor em `http://localhost:3005`, inicializa o DB (cria arquivo/tabelas) e, se houver, executa seed (se houver).
+- No diretório backend/, `bun run dev` inicia o servidor em `http://localhost:3005`, inicializa o DB (cria arquivo/tabelas) e, se houver, executa seed (se houver).
 - `POST /api/products` cria produto, retorna `201` com o recurso.
 - `GET /api/products` lista produtos.
 - CORS habilitado para `http://localhost:5173`.

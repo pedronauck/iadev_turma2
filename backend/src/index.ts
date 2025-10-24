@@ -2,6 +2,7 @@ import { Hono, type Context, type ErrorHandler } from 'hono';
 import { cors } from 'hono/cors';
 import dotenv from 'dotenv';
 import { initDatabase } from './db';
+import products from './products';
 
 dotenv.config();
 
@@ -26,6 +27,9 @@ app.get('/health', (c: Context) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount products router
+app.route('/api/products', products);
 
 // Error handler
 const errorHandler: ErrorHandler = (err: Error, c: Context) => {
