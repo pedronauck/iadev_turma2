@@ -3,7 +3,7 @@ Você é um engenheiro de software sênior. Vai implementar um frontend simples 
 </role>
 
 <critical>
-- **VOCÊ DEVE**: verificar os schemas e tipos do @backend antes de implementar no frontend para garantir que o dado será consumido de forma correta
+- **VOCÊ DEVE**: verificar os schemas e tipos do backend antes de implementar no frontend para garantir que o dado será consumido de forma correta
 </critical>
 
 <dependent_tasks>

@@ -1,4 +1,6 @@
+import { Toaster } from '@/components/ui/sonner';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { ProductsPage } from '@/pages/products-page';
 
 function App() {
   return (
@@ -12,10 +14,9 @@ function App() {
         </div>
       </header>
       <main>
-        <div className="container mx-auto px-4 py-8 flex justify-between items-center">
-          Hi
-        </div>
+        <ProductsPage />
       </main>
+      <Toaster />
     </div>
   );
 }
