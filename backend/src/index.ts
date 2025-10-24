@@ -1,13 +1,22 @@
 import { Hono, type Context, type ErrorHandler } from 'hono';
+import { serveStatic } from 'hono/bun';
 import { cors } from 'hono/cors';
 import dotenv from 'dotenv';
 import { initDatabase } from './db';
+import fs from 'fs';
+import path from 'path';
 import products from './products';
 
 dotenv.config();
 
 // Initialize database on startup
 initDatabase();
+
+// Ensure uploads directory exists (backend/uploads/products)
+const uploadsDir = path.join(process.cwd(), 'uploads', 'products');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 3005;
@@ -30,6 +39,9 @@ app.get('/health', (c: Context) => {
 
 // Mount products router
 app.route('/api/products', products);
+
+// Serve static uploads (e.g., /uploads/products/<file>)
+app.use('/uploads/*', serveStatic({ root: process.cwd() }));
 
 // Error handler
 const errorHandler: ErrorHandler = (err: Error, c: Context) => {

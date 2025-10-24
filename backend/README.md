@@ -36,6 +36,7 @@ DATABASE_URL=./data/database.sqlite
 ## API Endpoints
 
 ### Health Check
+
 ```
 GET /health
 ```
@@ -43,6 +44,7 @@ GET /health
 ### Produtos
 
 #### Criar Produto
+
 ```
 POST /api/products
 Content-Type: application/json
@@ -56,45 +58,45 @@ Content-Type: application/json
 ```
 
 #### Listar Produtos
+
 ```
 GET /api/products
 ```
 
 #### Buscar Produto por ID
+
 ```
 GET /api/products/:id
 ```
 
-#### Imagens do Produto
+#### Imagens do Produto (MVP)
 
-As imagens são armazenadas localmente em `backend/uploads` e servidas estaticamente via `GET /uploads/...`.
+As imagens são armazenadas localmente em `backend/uploads/products` e servidas estaticamente via `GET /uploads/...`.
 
 ```
 GET    /api/products/:id/images              # Lista imagens do produto
-POST   /api/products/:id/images              # Adiciona imagens (arquivo ou URL)
-DELETE /api/products/:id/images/:imageId     # Remove uma imagem
+POST   /api/products/:id/images              # Upload (multipart) múltiplas imagens
+DELETE /api/products/:id/images/:imageId     # Remove uma imagem (e arquivo local)
 ```
 
-Requests suportados em `POST /api/products/:id/images`:
+`POST /api/products/:id/images` (apenas multipart neste MVP):
 
-- Via JSON (adicionar por URL):
-```
-Content-Type: application/json
-{
-  "url": "https://exemplo.com/imagem.jpg",
-  "position": 0 // opcional
-}
-```
-
-- Via multipart/form-data (upload local):
 ```
 Content-Type: multipart/form-data
 Campo: images (pode enviar múltiplos arquivos)
 ```
 
+Limites/validação:
+
+- Até 5 arquivos por request
+- Máx 5MB por arquivo
+- Tipos suportados: image/jpeg, image/png, image/webp
+- Nomes gerados com UUID; URLs relativas iniciando com `/uploads/products/...`
+
 ## Exemplos de Requests
 
 ### Criar um produto
+
 ```bash
 curl -X POST http://localhost:3005/api/products \
   -H "Content-Type: application/json" \
@@ -107,21 +109,13 @@ curl -X POST http://localhost:3005/api/products \
 ```
 
 ### Listar todos os produtos
+
 ```bash
 curl http://localhost:3005/api/products
 ```
 
-### Adicionar imagem por URL
-```bash
-curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "url": "https://picsum.photos/seed/abc/800/600",
-    "position": 0
-  }'
-```
-
 ### Upload de imagens (multipart)
+
 ```bash
 curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
   -F "images=@/caminho/da/imagem1.jpg" \\
@@ -132,13 +126,13 @@ curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
 
 ```typescript
 type Product = {
-  id: string;          // UUID gerado automaticamente
-  name: string;        // Nome do produto
+  id: string; // UUID gerado automaticamente
+  name: string; // Nome do produto
   description: string; // Descrição do produto
-  price: number;       // Preço em decimal
-  sku: string;         // Código único do produto
-  createdAt: string;   // ISO 8601 timestamp
-}
+  price: number; // Preço em decimal
+  sku: string; // Código único do produto
+  createdAt: string; // ISO 8601 timestamp
+};
 ```
 
 ## Estrutura do Projeto
@@ -172,6 +166,7 @@ A suite de testes de integração completa está em `src/products.test.ts` usand
 ### Cobertura dos Testes:
 
 **POST /api/products:**
+
 - ✅ Criação de produto com sucesso (201)
 - ✅ Validação de nome vazio (400)
 - ✅ Validação de descrição ausente (400)
@@ -181,14 +176,17 @@ A suite de testes de integração completa está em `src/products.test.ts` usand
 - ✅ Tratamento de SKU duplicado (400)
 
 **GET /api/products:**
+
 - ✅ Lista vazia quando não há produtos
 - ✅ Lista todos os produtos cadastrados
 
 **GET /api/products/:id:**
+
 - ✅ Busca produto por ID existente
 - ✅ Retorna 404 para ID inexistente
 
 **CORS:**
+
 - ✅ Headers CORS configurados corretamente
 
 ### Executar Testes:
