@@ -69,34 +69,29 @@ GET /api/products
 GET /api/products/:id
 ```
 
-#### Imagens do Produto
+#### Imagens do Produto (MVP)
 
-As imagens são armazenadas localmente em `backend/uploads` e servidas estaticamente via `GET /uploads/...`.
+As imagens são armazenadas localmente em `backend/uploads/products` e servidas estaticamente via `GET /uploads/...`.
 
 ```
 GET    /api/products/:id/images              # Lista imagens do produto
-POST   /api/products/:id/images              # Adiciona imagens (arquivo ou URL)
-DELETE /api/products/:id/images/:imageId     # Remove uma imagem
+POST   /api/products/:id/images              # Upload (multipart) múltiplas imagens
+DELETE /api/products/:id/images/:imageId     # Remove uma imagem (e arquivo local)
 ```
 
-Requests suportados em `POST /api/products/:id/images`:
-
-- Via JSON (adicionar por URL):
-
-```
-Content-Type: application/json
-{
-  "url": "https://exemplo.com/imagem.jpg",
-  "position": 0 // opcional
-}
-```
-
-- Via multipart/form-data (upload local):
+`POST /api/products/:id/images` (apenas multipart neste MVP):
 
 ```
 Content-Type: multipart/form-data
 Campo: images (pode enviar múltiplos arquivos)
 ```
+
+Limites/validação:
+
+- Até 5 arquivos por request
+- Máx 5MB por arquivo
+- Tipos suportados: image/jpeg, image/png, image/webp
+- Nomes gerados com UUID; URLs relativas iniciando com `/uploads/products/...`
 
 ## Exemplos de Requests
 
@@ -117,17 +112,6 @@ curl -X POST http://localhost:3005/api/products \
 
 ```bash
 curl http://localhost:3005/api/products
-```
-
-### Adicionar imagem por URL
-
-```bash
-curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "url": "https://picsum.photos/seed/abc/800/600",
-    "position": 0
-  }'
 ```
 
 ### Upload de imagens (multipart)
