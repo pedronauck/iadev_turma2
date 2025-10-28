@@ -1,0 +1,147 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# React Best Practices
+
+<core_principles>
+**Modern React Development Philosophy:**
+- Build single-page applications with client-side routing
+- Optimize for performance with code splitting and lazy loading
+- Embrace React 19+ features to eliminate boilerplate
+- Keep bundle size small with tree shaking and dynamic imports
+</core_principles>
+
+## Component Architecture
+
+<component_guidelines>
+**Essential Component Patterns:**
+- Use functional components exclusively - class components are legacy
+- Keep components small, focused on single responsibility
+- Co-locate related files by feature, not by type (components/hooks/utils together)
+- Structure components by feature/domain, not by technical layer
+</component_guidelines>
+
+## State Management Hierarchy
+
+<state_management>
+**Recommended State Management Strategy:**
+1. **Local state** (useState/useReducer) for component-specific UI state
+2. **Zustand** for shared client state across components
+3. **TanStack Query** for server state and data synchronization
+4. **URL state** for shareable application state (with TanStack Router)
+</state_management>
+
+## React 19+ Features
+
+<modern_features>
+**Leverage Latest React Capabilities:**
+- Use the `use()` hook for unwrapping promises in components
+- Adopt Actions for form submissions and data mutations
+- Leverage `useFormStatus()` and `useFormState()` for form handling
+- Implement `useOptimistic()` for instant UI updates with rollback
+</modern_features>
+## TypeScript Integration
+
+<typescript_guidelines>
+**Type Safety Best Practices:**
+- Don't use React.FC - type props directly on the function
+- Use React.ComponentProps<'element'> for extending HTML elements
+- Leverage const type parameters for better type inference
+- Type your custom hooks' inputs and outputs explicitly
+</typescript_guidelines>
+
+## Data Fetching Patterns
+
+<data_fetching>
+**Modern Data Management:**
+- Use TanStack Query for all server state management
+- Implement optimistic updates for better UX
+- Use proper loading states with Suspense boundaries
+- Handle errors with Error Boundaries at strategic levels
+- Prefetch data on route/interaction predictions
+</data_fetching>
+
+## Form Handling
+
+<form_guidelines>
+**Modern Form Management:**
+- Use React 19 Actions for form submissions
+- Integrate @tanstack/react-form with zod for complex forms
+- Implement optimistic updates for better UX
+- Always provide proper validation and error messages
+</form_guidelines>
+
+## Error Handling
+
+<error_handling>
+**Robust Error Management:**
+- Use Error Boundaries to catch and display errors gracefully
+- Implement fallback UI for error states
+- Log errors to monitoring service (Sentry, etc.)
+- Type your errors properly - never assume Error type
+</error_handling>
+
+## Accessibility (a11y)
+
+<accessibility_guidelines>
+**Essential Accessibility Practices:**
+- Use semantic HTML elements first
+- Ensure keyboard navigation works for all interactions
+- Test with screen readers regularly
+- Use Oxlint jsx-a11y rules for automated checks
+- Follow WCAG 2.2 guidelines
+</accessibility_guidelines>
+
+## Custom Hooks Guidelines
+
+<hooks_guidelines>
+**Custom Hook Best Practices:**
+- Extract non-visual logic into custom hooks
+- Keep hooks focused on single purpose
+- Use clear naming: useXxx pattern
+- Return arrays for state-like hooks, objects for complex returns
+- Document hook dependencies and return values
+</hooks_guidelines>
+
+## Code Organization
+
+<organization_structure>
+**Recommended Project Structure:**
+```
+/src
+└── /features
+    ├── /products
+    │   ├── /components
+    │   ├── /hooks
+    │   ├── /api
+    │   ├── /types
+    │   └── index.ts  // Public API
+    └── /auth
+        ├── /components
+        ├── /actions
+        └── index.ts
+```
+</organization_structure>
+
+## Security Best Practices
+
+<security_guidelines>
+**Essential Security Measures:**
+- Sanitize user inputs to prevent XSS
+- Use environment variables for sensitive data
+- Implement proper authentication/authorization
+- Validate data on both client and server
+- Keep dependencies updated
+</security_guidelines>
+
+## Modern Patterns to Adopt
+
+<modern_patterns>
+**Recommended Development Patterns:**
+- Render props sparingly, prefer composition
+- Use portals for modals and tooltips
+- Implement progressive enhancement
+- Design for mobile-first responsive layouts
+</modern_patterns>

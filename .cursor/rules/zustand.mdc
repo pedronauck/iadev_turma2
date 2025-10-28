@@ -1,0 +1,119 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Zustand Best Practices
+
+<core_philosophy>
+**Zustand State Management Philosophy:**
+- Use Zustand for shared client state only
+- Keep stores focused and domain-specific
+- Leverage TypeScript for type-safe stores
+- Prefer simplicity over complex abstractions
+</core_philosophy>
+
+## Store Organization
+
+<store_organization>
+**Essential Store Structure Patterns:**
+- Create separate stores for different domains
+- Use slices pattern for large stores
+- Keep stores close to features that use them
+- Export typed hooks for better DX
+</store_organization>
+
+```typescript
+// stores/auth.store.ts
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
+
+interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  actions: {
+    login: (credentials: LoginCredentials) => Promise<void>
+    logout: () => void
+    updateUser: (updates: Partial<User>) => void
+  }
+}
+
+export const useAuthStore = create<AuthState>()(
+  devtools(
+    persist(
+      immer((set, get) => ({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        actions: {
+          login: async (credentials) => {
+            set((state) => {
+              state.isLoading = true
+            })
+
+            try {
+              const user = await api.auth.login(credentials)
+              set((state) => {
+                state.user = user
+                state.isAuthenticated = true
+                state.isLoading = false
+              })
+            } catch (error) {
+              set((state) => {
+                state.isLoading = false
+              })
+              throw error
+            }
+          },
+          logout: () => {
+            set((state) => {
+              state.user = null
+              state.isAuthenticated = false
+            })
+          },
+          updateUser: (updates) => {
+            set((state) => {
+              if (state.user) {
+                Object.assign(state.user, updates)
+              }
+            })
+          },
+        },
+      })),
+      {
+        name: 'auth-storage',
+        partialize: (state) => ({
+          user: state.user,
+          isAuthenticated: state.isAuthenticated,
+        }),
+      }
+    ),
+    { name: 'auth-store' }
+  )
+)
+
+// Selector hooks for performance
+export const useUser = () => useAuthStore((state) => state.user)
+export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated)
+export const useAuthActions = () => useAuthStore((state) => state.actions)
+```
+
+<best_practices_summary>
+**Essential Zustand Guidelines:**
+1. Keep stores focused on specific domains
+2. Use TypeScript for full type safety
+3. Leverage middleware for common patterns
+4. Create selector hooks for performance
+5. Use immer for complex state updates
+6. Persist only necessary state
+7. Test stores thoroughly
+8. Handle async operations properly
+9. Implement optimistic updates when appropriate
+10. Document store structure and actions
+</best_practices_summary>
+
+<enforcement_policy>
+**MANDATORY:** These patterns must be followed consistently across all Zustand stores and state management implementations.
+</enforcement_policy>

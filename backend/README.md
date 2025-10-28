@@ -36,6 +36,7 @@ DATABASE_URL=./data/database.sqlite
 ## API Endpoints
 
 ### Health Check
+
 ```
 GET /health
 ```
@@ -43,6 +44,7 @@ GET /health
 ### Produtos
 
 #### Criar Produto
+
 ```
 POST /api/products
 Content-Type: application/json
@@ -56,11 +58,13 @@ Content-Type: application/json
 ```
 
 #### Listar Produtos
+
 ```
 GET /api/products
 ```
 
 #### Buscar Produto por ID
+
 ```
 GET /api/products/:id
 ```
@@ -78,6 +82,7 @@ DELETE /api/products/:id/images/:imageId     # Remove uma imagem
 Requests suportados em `POST /api/products/:id/images`:
 
 - Via JSON (adicionar por URL):
+
 ```
 Content-Type: application/json
 {
@@ -87,6 +92,7 @@ Content-Type: application/json
 ```
 
 - Via multipart/form-data (upload local):
+
 ```
 Content-Type: multipart/form-data
 Campo: images (pode enviar múltiplos arquivos)
@@ -95,6 +101,7 @@ Campo: images (pode enviar múltiplos arquivos)
 ## Exemplos de Requests
 
 ### Criar um produto
+
 ```bash
 curl -X POST http://localhost:3005/api/products \
   -H "Content-Type: application/json" \
@@ -107,11 +114,13 @@ curl -X POST http://localhost:3005/api/products \
 ```
 
 ### Listar todos os produtos
+
 ```bash
 curl http://localhost:3005/api/products
 ```
 
 ### Adicionar imagem por URL
+
 ```bash
 curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
   -H "Content-Type: application/json" \\
@@ -122,6 +131,7 @@ curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
 ```
 
 ### Upload de imagens (multipart)
+
 ```bash
 curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
   -F "images=@/caminho/da/imagem1.jpg" \\
@@ -132,13 +142,13 @@ curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
 
 ```typescript
 type Product = {
-  id: string;          // UUID gerado automaticamente
-  name: string;        // Nome do produto
+  id: string; // UUID gerado automaticamente
+  name: string; // Nome do produto
   description: string; // Descrição do produto
-  price: number;       // Preço em decimal
-  sku: string;         // Código único do produto
-  createdAt: string;   // ISO 8601 timestamp
-}
+  price: number; // Preço em decimal
+  sku: string; // Código único do produto
+  createdAt: string; // ISO 8601 timestamp
+};
 ```
 
 ## Estrutura do Projeto
@@ -172,6 +182,7 @@ A suite de testes de integração completa está em `src/products.test.ts` usand
 ### Cobertura dos Testes:
 
 **POST /api/products:**
+
 - ✅ Criação de produto com sucesso (201)
 - ✅ Validação de nome vazio (400)
 - ✅ Validação de descrição ausente (400)
@@ -181,14 +192,17 @@ A suite de testes de integração completa está em `src/products.test.ts` usand
 - ✅ Tratamento de SKU duplicado (400)
 
 **GET /api/products:**
+
 - ✅ Lista vazia quando não há produtos
 - ✅ Lista todos os produtos cadastrados
 
 **GET /api/products/:id:**
+
 - ✅ Busca produto por ID existente
 - ✅ Retorna 404 para ID inexistente
 
 **CORS:**
+
 - ✅ Headers CORS configurados corretamente
 
 ### Executar Testes:

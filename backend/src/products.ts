@@ -114,7 +114,9 @@ products.get('/:id', async (c) => {
     const id = c.req.param('id');
     const statements = getStatements();
 
-    const product = statements.getProductById.get({ $id: id }) as Product | undefined;
+    const product = statements.getProductById.get({ $id: id }) as
+      | Product
+      | undefined;
 
     if (!product) {
       return c.json(

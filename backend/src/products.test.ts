@@ -310,9 +310,12 @@ describe('Products API Integration Tests', () => {
       const createdProduct = (await createRes.json()) as any;
 
       // Get product by ID
-      const req = new Request(`http://localhost/api/products/${createdProduct.id}`, {
-        method: 'GET',
-      });
+      const req = new Request(
+        `http://localhost/api/products/${createdProduct.id}`,
+        {
+          method: 'GET',
+        }
+      );
 
       const res = await app.fetch(req);
       expect(res.status).toBe(200);
@@ -349,7 +352,9 @@ describe('Products API Integration Tests', () => {
       });
 
       const res = await app.fetch(req);
-      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:5173');
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+        'http://localhost:5173'
+      );
     });
   });
 });

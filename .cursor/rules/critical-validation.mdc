@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+
+<critical>
+- **MANDATORY READ THIS FILES BEFORE DO ANYTHING**, if you don't follow them your task will be invalidated:
+  - No linebreaks in function (MOST IMPORTANT): @.cursor/rules/no-linebreaks.mdc
+  - when doing backend:
+    - Hono: @.cursor/rules/hono.mdc
+  - when doing frontend:
+    - ReactJS: @.cursor/rules/react.mdc
+    - ShadCN component: @.cursor/rules/shadcn.mdc
+    - Tailwind: @.cursor/rules/tailwindcss.mdc
+    - Router: @.cursor/rules/tanstack-router.mdc
+    - Global state: @.cursor/rules/zustand.mdc
+
+- **MANDATORY REQUIREMENTS**
+  - **ALWAYS** check dependent files APIs before write tests to avoid write wrong code
+  - **NEVER** use workarounds, especially in tests - implement proper solutions
+  - **MUST** run `bun lint`, `bun typecheck` and `bun test` before completing ANY subtask
+  - **ALWAYS CHECK** the .cursor/rules/zen-mcp-tools.mdc if you are using Zen MCP tools
+  - **YOU CAN ONLY** finish a task if `bun lint`, `bun typecheck` and `bun tests` are passing, your task should not finish before this
+  - **YOU MUST NEED** to use perplexity and context7 to get updated information when dealing with external libraries or tools and **NEVER RELY** only in the models data
+  - **ALWAYS FOLLOW** shadcn filename pattern with kebabcase for all react related files under the ./frontend/src
+
+### Greenfield Approach
+
+- **YOU SHOULD ALWAYS** have in mind that this should be done in a greenfield approach, we don't need to care about backwards compatibility since the project is in alpha, and support old and new stuff just introduces more complexity in the project; never sacrifice quality because of backwards compatibility
+
+### For React Components
+
+- **YOU MUST FOLLOW** the react.mdc rules when creating react components, if you does not follow this you will be rejected
+- **NEVER** create components that mix a lot of behavior logic with visual rendering. Instead, extract behavior into focused custom hooks (like `useIssueSearch`, `useProjectFilter`, `useIssuesByStatus` in `issue-list.tsx`). Components should focus primarily on rendering UI and delegating to hooks for state management and business logic.
+
+**Enforcement:** Violating these standards results in immediate task rejection.
+</critical>

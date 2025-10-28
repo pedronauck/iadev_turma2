@@ -5,7 +5,9 @@ import fs from 'fs';
 
 config();
 
-const DATABASE_URL = process.env.DATABASE_URL || path.join(process.cwd(), 'data', 'database.sqlite');
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  path.join(process.cwd(), 'data', 'database.sqlite');
 const dbDir = path.dirname(DATABASE_URL);
 
 // Ensure data directory exists
@@ -44,7 +46,7 @@ export function initDatabase(): void {
 
   db.exec(createProductsTable);
   db.exec(createProductImagesTable);
-  
+
   // Cart tables
   const createCartsTable = `
     CREATE TABLE IF NOT EXISTS carts (
@@ -77,7 +79,7 @@ export function initDatabase(): void {
   db.exec(createCartsTable);
   db.exec(createCartItemsTable);
   db.exec(createCartIndexes);
-  
+
   console.log('✅ Database initialized');
 }
 
@@ -88,28 +90,28 @@ export function getStatements() {
       INSERT INTO products (id, name, description, price, sku, createdAt)
       VALUES ($id, $name, $description, $price, $sku, $createdAt)
     `),
-    
+
     getAllProducts: db.prepare(`
       SELECT * FROM products
       ORDER BY createdAt DESC
     `),
-    
+
     getProductById: db.prepare(`
       SELECT * FROM products
       WHERE id = $id
     `),
-    
+
     getProductBySku: db.prepare(`
       SELECT * FROM products
       WHERE sku = $sku
     `),
-    
+
     updateProduct: db.prepare(`
       UPDATE products
       SET name = $name, description = $description, price = $price, sku = $sku
       WHERE id = $id
     `),
-    
+
     deleteProduct: db.prepare(`
       DELETE FROM products
       WHERE id = $id
@@ -135,6 +137,6 @@ export function getStatements() {
     deleteImageById: db.prepare(`
       DELETE FROM product_images
       WHERE id = $id
-    `)
+    `),
   };
 }

@@ -1,0 +1,35 @@
+---
+alwaysApply: true
+---
+# Line Break Formatting
+
+## Rules
+
+- Don't add extra line breaks between variable definitions and code blocks
+- Small functions don't need line breaks between statements
+
+## Bad
+
+```ts
+function Foo() {
+    bar := "bar"
+
+    bar = "baz"
+
+    return
+}
+```
+
+## Good
+
+```ts
+function Foo() {
+    bar := "bar"
+    bar = "baz"
+    return
+}
+```
+
+<critical>
+**YOU MUST NEED** to follow this, files that don't follow this rule will be invalidated
+</critical>

@@ -1,0 +1,441 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# TanStack Router Best Practices
+
+<core_principles>
+**Type-Safe Routing Philosophy:**
+- Embrace type-safe routing as the primary benefit
+- Use file-based routing for scalability
+- Leverage the generated route tree for type safety
+- Think in terms of layouts and nested routes
+</core_principles>
+
+## File-Based Routing Structure
+
+<file_routing_structure>
+**Recommended Directory Organization:**
+</file_routing_structure>
+
+```
+src/routes/
+├── __root.tsx          # Root layout with providers
+├── _authenticated.tsx  # Auth layout wrapper
+├── index.tsx          # Home page (/)
+├── about.tsx          # /about
+├── posts/
+│   ├── index.tsx      # /posts
+│   └── $postId.tsx    # /posts/:postId (typed params)
+└── settings/
+    ├── _layout.tsx    # Settings layout
+    ├── index.tsx      # /settings
+    └── profile.tsx    # /settings/profile
+```
+
+## Route Configuration
+
+<route_configuration>
+**Essential Route Setup Patterns:**
+- Define proper route hierarchies
+- Implement type-safe parameters
+- Use proper route guards
+- Configure data loading strategies
+</route_configuration>
+
+```typescript
+// routes/__root.tsx
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
+export const Route = createRootRoute({
+  component: () => (
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen bg-background">
+        <Outlet />
+      </div>
+      <TanStackRouterDevtools />
+    </QueryClientProvider>
+  ),
+})
+
+// routes/posts/$postId.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
+
+const postSearchSchema = z.object({
+  tab: z.enum(['overview', 'comments']).optional(),
+})
+
+export const Route = createFileRoute('/posts/$postId')({
+  validateSearch: postSearchSchema,
+  loader: async ({ params }) => {
+    return await fetchPost(params.postId)
+  },
+  component: PostDetail,
+})
+
+function PostDetail() {
+  const { postId } = Route.useParams()
+  const { tab } = Route.useSearch()
+  const post = Route.useLoaderData()
+  
+  return (
+    <div>
+      <h1>{post.title}</h1>
+      {/* Component implementation */}
+    </div>
+  )
+}
+```
+
+## Data Loading Strategies
+
+<data_loading>
+**Comprehensive Data Management:**
+- Use route loaders for critical data
+- Implement proper error boundaries
+- Leverage search params for filters
+- Handle loading states gracefully
+</data_loading>
+
+```typescript
+// routes/users/index.tsx
+export const Route = createFileRoute('/users/')({
+  validateSearch: z.object({
+    page: z.number().min(1).catch(1),
+    limit: z.number().min(1).max(100).catch(10),
+    search: z.string().optional(),
+  }),
+  loaderDeps: ({ search }) => ({ search }),
+  loader: async ({ deps: { search } }) => {
+    return await fetchUsers({
+      page: search.page,
+      limit: search.limit,
+      search: search.search,
+    })
+  },
+  component: UsersList,
+  pendingComponent: () => <div>Loading users...</div>,
+  errorComponent: ({ error }) => <div>Error: {error.message}</div>,
+})
+```
+
+## Authentication Patterns
+
+<authentication_patterns>
+**Secure Route Protection:**
+- Implement route-based authentication
+- Use layout routes for auth checks
+- Handle redirect flows properly
+- Manage auth state consistently
+</authentication_patterns>
+
+```typescript
+// routes/_authenticated.tsx
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { useAuthStore } from '@/stores/auth'
+
+export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: async ({ location }) => {
+    const isAuthenticated = useAuthStore.getState().isAuthenticated
+    
+    if (!isAuthenticated) {
+      throw redirect({
+        to: '/login',
+        search: {
+          redirect: location.href,
+        },
+      })
+    }
+  },
+  component: AuthenticatedLayout,
+})
+
+function AuthenticatedLayout() {
+  return (
+    <div className="authenticated-layout">
+      <nav>{/* Navigation for authenticated users */}</nav>
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  )
+}
+
+// routes/_authenticated/dashboard.tsx
+export const Route = createFileRoute('/_authenticated/dashboard')({
+  component: Dashboard,
+})
+```
+
+## Navigation and Links
+
+<navigation_patterns>
+**Type-Safe Navigation Implementation:**
+- Use Link component for internal navigation
+- Leverage useNavigate for programmatic navigation
+- Implement proper active states
+- Handle external links appropriately
+</navigation_patterns>
+
+```typescript
+import { Link, useNavigate } from '@tanstack/react-router'
+
+function Navigation() {
+  const navigate = useNavigate()
+  
+  return (
+    <nav>
+      <Link
+        to="/posts"
+        search={{ page: 1 }}
+        activeProps={{
+          className: 'font-bold text-blue-600',
+        }}
+        activeOptions={{
+          exact: false,
+        }}
+      >
+        Posts
+      </Link>
+      
+      <Link
+        to="/posts/$postId"
+        params={{ postId: '123' }}
+        search={{ tab: 'comments' }}
+      >
+        Post Detail
+      </Link>
+      
+      <button
+        onClick={() => {
+          navigate({
+            to: '/posts/$postId',
+            params: { postId: '456' },
+            search: { tab: 'overview' },
+          })
+        }}
+      >
+        Navigate Programmatically
+      </button>
+    </nav>
+  )
+}
+```
+
+## Search Params Management
+
+<search_params>
+**Advanced Search Parameter Handling:**
+- Use zod for search param validation
+- Implement proper URL state management
+- Handle complex filter scenarios
+- Maintain URL synchronization
+</search_params>
+
+```typescript
+// hooks/usePostsFilters.ts
+import { useNavigate, useSearch } from '@tanstack/react-router'
+
+const filtersSchema = z.object({
+  category: z.string().optional(),
+  status: z.enum(['draft', 'published', 'archived']).optional(),
+  tags: z.array(z.string()).optional(),
+  dateRange: z.object({
+    from: z.string().optional(),
+    to: z.string().optional(),
+  }).optional(),
+})
+
+export function usePostsFilters() {
+  const navigate = useNavigate()
+  const search = useSearch({ from: '/posts/' })
+  
+  const updateFilters = (updates: Partial<typeof search>) => {
+    navigate({
+      search: (prev) => ({ ...prev, ...updates }),
+      replace: true,
+    })
+  }
+  
+  const clearFilters = () => {
+    navigate({
+      search: {},
+      replace: true,
+    })
+  }
+  
+  return {
+    filters: search,
+    updateFilters,
+    clearFilters,
+  }
+}
+```
+
+## Code Splitting
+
+<code_splitting>
+**Efficient Route-Based Code Splitting:**
+- Use lazy loading for route components
+- Implement proper loading boundaries
+- Handle chunk loading errors
+- Optimize bundle sizes per route
+</code_splitting>
+
+```typescript
+// routes/admin.lazy.tsx
+import { createLazyFileRoute } from '@tanstack/react-router'
+import { lazy } from 'react'
+
+const AdminDashboard = lazy(() => import('@/components/AdminDashboard'))
+
+export const Route = createLazyFileRoute('/admin')({
+  component: () => (
+    <Suspense fallback={<AdminLoadingSkeleton />}>
+      <AdminDashboard />
+    </Suspense>
+  ),
+})
+```
+
+## Error Handling
+
+<error_handling>
+**Comprehensive Error Management:**
+- Implement route-level error boundaries
+- Handle different error types appropriately
+- Provide meaningful error messages
+- Enable error recovery mechanisms
+</error_handling>
+
+```typescript
+// routes/posts/$postId.tsx
+export const Route = createFileRoute('/posts/$postId')({
+  loader: async ({ params }) => {
+    try {
+      return await fetchPost(params.postId)
+    } catch (error) {
+      if (error.status === 404) {
+        throw new Error(`Post ${params.postId} not found`)
+      }
+      throw error
+    }
+  },
+  errorComponent: ({ error, retry }) => (
+    <div className="error-container">
+      <h2>Something went wrong</h2>
+      <p>{error.message}</p>
+      <button onClick={retry}>Try Again</button>
+      <Link to="/posts">Back to Posts</Link>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div>
+      <h2>Post Not Found</h2>
+      <Link to="/posts">Back to Posts</Link>
+    </div>
+  ),
+})
+```
+
+## SEO and Meta Tags
+
+<seo_optimization>
+**Search Engine Optimization:**
+- Implement dynamic meta tags
+- Handle page titles properly
+- Configure Open Graph tags
+- Manage canonical URLs
+</seo_optimization>
+
+```typescript
+// routes/posts/$postId.tsx
+export const Route = createFileRoute('/posts/$postId')({
+  loader: async ({ params }) => {
+    const post = await fetchPost(params.postId)
+    return { post }
+  },
+  component: PostDetail,
+  head: ({ loaderData }) => ({
+    title: `${loaderData.post.title} | My Blog`,
+    meta: [
+      {
+        name: 'description',
+        content: loaderData.post.excerpt,
+      },
+      {
+        property: 'og:title',
+        content: loaderData.post.title,
+      },
+      {
+        property: 'og:description',
+        content: loaderData.post.excerpt,
+      },
+      {
+        property: 'og:image',
+        content: loaderData.post.featuredImage,
+      },
+    ],
+  }),
+})
+```
+
+## Performance Optimization
+
+<performance_optimization>
+**Critical Performance Patterns:**
+- Implement route preloading
+- Use proper caching strategies
+- Optimize loader dependencies
+- Handle concurrent navigation
+</performance_optimization>
+
+```typescript
+// Preload routes on hover
+<Link
+  to="/posts/$postId"
+  params={{ postId: post.id }}
+  preload="intent" // or "render"
+>
+  {post.title}
+</Link>
+
+// Optimize loader dependencies
+export const Route = createFileRoute('/posts/')({
+  loaderDeps: ({ search }) => ({
+    page: search.page,
+    category: search.category,
+  }),
+  loader: async ({ deps }) => {
+    // Only re-run when dependencies change
+    return await fetchPosts(deps)
+  },
+})
+```
+
+<testing_patterns>
+**Essential Testing Strategies:**
+- Test route navigation flows
+- Mock route loaders in tests
+- Test search param handling
+- Verify authentication flows
+</testing_patterns>
+
+<common_patterns>
+**Essential Router Patterns:**
+1. Layout routes for shared UI
+2. Authenticated route wrappers
+3. Search param synchronization
+4. Dynamic route generation
+5. Route-based code splitting
+</common_patterns>
+
+<enforcement_policy>
+**MANDATORY:** These patterns must be followed consistently across all TanStack Router implementations.
+</enforcement_policy>

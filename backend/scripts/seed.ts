@@ -185,7 +185,9 @@ async function seedDatabase() {
   console.log('\n✅ Database seeded with products');
   console.log(`PlayStation 5 ID: ${ps5ProductId}`);
   console.log(`Xbox One S ID: ${xboxProductId}`);
-  console.log(`Total images uploaded: ${ps5ImageFiles.length + xboxImageFiles.length}`);
+  console.log(
+    `Total images uploaded: ${ps5ImageFiles.length + xboxImageFiles.length}`
+  );
 }
 
 // Run the seed
