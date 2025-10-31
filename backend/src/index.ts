@@ -6,6 +6,7 @@ import { initDatabase } from './db';
 import fs from 'fs';
 import path from 'path';
 import products from './products';
+import cart from './cart';
 
 dotenv.config();
 
@@ -37,8 +38,9 @@ app.get('/health', (c: Context) => {
   });
 });
 
-// Mount products router
+// Mount routers
 app.route('/api/products', products);
+app.route('/api/cart', cart);
 
 // Serve static uploads (e.g., /uploads/products/<file>)
 app.use('/uploads/*', serveStatic({ root: process.cwd() }));

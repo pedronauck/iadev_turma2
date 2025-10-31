@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { X, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,7 +16,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { Dropzone } from '@/components/ui/kibo-ui/dropzone';
 import { useCreateProduct } from '@/hooks/use-create-product';
+import { useUploadProductImages } from '@/hooks/use-products';
 import { createProductSchema, type CreateProduct } from '@/types/product';
 
 interface AddProductDialogProps {
@@ -24,33 +28,48 @@ interface AddProductDialogProps {
 
 export function AddProductDialog({ trigger }: AddProductDialogProps) {
   const [open, setOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const createProduct = useCreateProduct();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreateProduct>({
+  const uploadImages = useUploadProductImages();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateProduct>({
     resolver: zodResolver(createProductSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      price: 0,
-      sku: '',
-    },
+    defaultValues: { name: '', description: '', price: 0, sku: '' },
   });
+  useEffect(() => {
+    if (!open) {
+      setSelectedFiles([]);
+      setIsUploading(false);
+      reset();
+    }
+  }, [open, reset]);
 
+  const handleFilesDrop = (files: File[]) => {
+    const validFiles = files.filter((file) => {
+      const isValidType = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
+      const isValidSize = file.size <= 5 * 1024 * 1024;
+      if (!isValidType) toast.error(`${file.name}: formato não suportado. Use JPEG, PNG ou WEBP`);
+      if (!isValidSize) toast.error(`${file.name}: arquivo muito grande (máx 5MB)`);
+      return isValidType && isValidSize;
+    });
+    setSelectedFiles((prev) => [...prev, ...validFiles].slice(0, 5));
+  };
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
   const onSubmit = async (data: CreateProduct) => {
     try {
-      await createProduct.mutateAsync(data);
+      const newProduct = await createProduct.mutateAsync(data);
+      if (selectedFiles.length > 0) {
+        setIsUploading(true);
+        await uploadImages.mutateAsync({ productId: newProduct.id, files: selectedFiles });
+      }
       toast.success('Produto criado com sucesso!');
       setOpen(false);
-      reset();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Erro ao criar produto'
-      );
+      toast.error(error instanceof Error ? error.message : 'Erro ao criar produto');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -117,18 +136,39 @@ export function AddProductDialog({ trigger }: AddProductDialogProps) {
                 <p className="text-sm text-destructive">{errors.sku.message}</p>
               )}
             </div>
+            <Separator />
+            <div className="grid gap-2">
+              <Label>Imagens do Produto (opcional)</Label>
+              <Dropzone accept={{ 'image/jpeg': [], 'image/png': [], 'image/webp': [] }} maxFiles={5} maxSize={5 * 1024 * 1024} onDrop={handleFilesDrop} disabled={selectedFiles.length >= 5} className="min-h-[100px]">
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    {selectedFiles.length === 0 ? 'Arraste imagens ou clique para selecionar' : `Adicionar mais imagens (${selectedFiles.length}/5)`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Máximo 5 imagens de até 5MB (JPEG, PNG, WEBP)</p>
+                </div>
+              </Dropzone>
+            </div>
+            {selectedFiles.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-24 object-cover rounded border" />
+                    <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeFile(index)}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                    <p className="text-xs text-muted-foreground truncate mt-1">{file.name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={createProduct.isPending}
-            >
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={createProduct.isPending || isUploading}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={createProduct.isPending}>
-              {createProduct.isPending ? 'Criando...' : 'Criar Produto'}
+            <Button type="submit" disabled={createProduct.isPending || isUploading}>
+              {isUploading ? 'Fazendo upload...' : createProduct.isPending ? 'Criando...' : 'Criar Produto'}
             </Button>
           </DialogFooter>
         </form>

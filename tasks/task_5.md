@@ -45,47 +45,6 @@ Esta tarefa implementa:
    - Layout responsivo (mobile-first).
 </escopo>
 
-<routing_setup>
-Para simplificar, use **configuração manual de rotas** (não file-based routing). Estrutura:
-
-```ts
-// @/router.tsx
-import { createRouter, createRootRoute, createRoute } from '@tanstack/react-router'
-import { ProductsPage } from '@/pages/products-page'
-import { ProductDetailPage } from '@/pages/product-detail-page'
-
-const rootRoute = createRootRoute({
-  component: () => <Outlet />, // Renderiza a rota filha
-})
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: ProductsPage,
-})
-
-const productDetailRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/product/$id',
-  component: ProductDetailPage,
-})
-
-const routeTree = rootRoute.addChildren([indexRoute, productDetailRoute])
-
-export const router = createRouter({ routeTree })
-
-// Type safety
-declare module '@tanstack/react-router' {
-  interface Register {
-    router: typeof router
-  }
-}
-```
-
-**Nota:** TanStack Router usa `$id` para parâmetros dinâmicos (não `:id`).
-
-</routing_setup>
-
 <frontend_requirements>
 - Stack: TypeScript, Vite, React Query, TanStack Router, Zod (seguir padrão do projeto).
 - Componentes UI: usar `@/components/ui/*` (shadcn) como Button, Card, Badge, Skeleton, Alert, AspectRatio, etc.
@@ -200,7 +159,6 @@ O TanStack Router é um router totalmente tipado com foco em type safety e DX. C
 
 **Dica:** TanStack Router v1 usa configuração imperativa (não file-based por padrão), como mostrado em `<routing_setup>`.
 </tanstack_router_key_concepts>
-
 
 <constraints>
 - **NÃO DEVE** alterar o schema de `Product` ou `ProductImage`.

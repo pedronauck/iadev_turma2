@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(test:*)",
-      "Bash(bun pm:*)"
+      "Bash(bun pm:*)",
+      "mcp__figma__get_design_context",
+      "mcp__context7__resolve-library-id",
+      "mcp__figma__get_screenshot",
+      "mcp__context7__get-library-docs",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

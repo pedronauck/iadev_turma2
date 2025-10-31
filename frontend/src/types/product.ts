@@ -18,5 +18,15 @@ export const createProductSchema = z.object({
   sku: z.string().min(1, 'SKU é obrigatório'),
 });
 
+export const productImageSchema = z.object({
+  id: z.string(),
+  url: z.string(),
+  position: z.number(),
+  createdAt: z.string(),
+});
+
+export const productImagesSchema = z.array(productImageSchema);
+
 export type Product = z.infer<typeof productSchema>;
 export type CreateProduct = z.infer<typeof createProductSchema>;
+export type ProductImage = z.infer<typeof productImageSchema>;

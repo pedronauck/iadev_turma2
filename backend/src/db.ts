@@ -138,5 +138,59 @@ export function getStatements() {
       DELETE FROM product_images
       WHERE id = $id
     `),
+    // Cart operations
+    getCartBySessionId: db.prepare(`
+      SELECT * FROM carts WHERE session_id = $sessionId
+    `),
+    insertCart: db.prepare(`
+      INSERT INTO carts (id, session_id, created_at, updated_at)
+      VALUES ($id, $sessionId, $createdAt, $updatedAt)
+    `),
+    updateCartTimestamp: db.prepare(`
+      UPDATE carts SET updated_at = $updatedAt WHERE id = $id
+    `),
+    deleteCart: db.prepare(`
+      DELETE FROM carts WHERE id = $id
+    `),
+    // Cart items operations
+    getCartItemsByCartId: db.prepare(`
+      SELECT 
+        ci.id,
+        ci.cart_id as cartId,
+        ci.product_id as productId,
+        ci.quantity,
+        ci.created_at as createdAt,
+        ci.updated_at as updatedAt,
+        p.id as product_id,
+        p.name as product_name,
+        p.price as product_price,
+        p.sku as product_sku
+      FROM cart_items ci
+      INNER JOIN products p ON ci.product_id = p.id
+      WHERE ci.cart_id = $cartId
+      ORDER BY ci.created_at DESC
+    `),
+    getCartItemById: db.prepare(`
+      SELECT * FROM cart_items WHERE id = $id
+    `),
+    getCartItemByProductId: db.prepare(`
+      SELECT * FROM cart_items 
+      WHERE cart_id = $cartId AND product_id = $productId
+    `),
+    insertCartItem: db.prepare(`
+      INSERT INTO cart_items (id, cart_id, product_id, quantity, created_at, updated_at)
+      VALUES ($id, $cartId, $productId, $quantity, $createdAt, $updatedAt)
+    `),
+    updateCartItemQuantity: db.prepare(`
+      UPDATE cart_items 
+      SET quantity = $quantity, updated_at = $updatedAt 
+      WHERE id = $id
+    `),
+    deleteCartItem: db.prepare(`
+      DELETE FROM cart_items WHERE id = $id
+    `),
+    deleteCartItemsByCartId: db.prepare(`
+      DELETE FROM cart_items WHERE cart_id = $cartId
+    `),
   };
 }

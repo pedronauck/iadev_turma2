@@ -5,6 +5,7 @@
   - No linebreaks in function (MOST IMPORTANT): @.cursor/rules/no-linebreaks.mdc
   - when doing backend:
     - Hono: @.cursor/rules/hono.mdc
+    - BunJS: @.cursor/rules/bunjs.mdc
   - when doing frontend:
     - ReactJS: @.cursor/rules/react.mdc
     - ShadCN component: @.cursor/rules/shadcn.mdc
