@@ -1,12 +1,8 @@
 import { Hono, type Context, type ErrorHandler } from 'hono';
 import { cors } from 'hono/cors';
 import dotenv from 'dotenv';
-import { initDatabase } from './db';
 
 dotenv.config();
-
-// Initialize database on startup
-initDatabase();
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 3005;
