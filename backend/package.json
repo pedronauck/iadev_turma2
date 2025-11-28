@@ -17,8 +17,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@hono/node-server": "^1.9.0",
     "dotenv": "^17.2.1",
     "hono": "^4.8.1",
-    "@hono/node-server": "^1.9.0"
+    "zod": "^4.1.13"
   }
 }

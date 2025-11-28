@@ -67,30 +67,19 @@ GET /api/products/:id
 
 #### Imagens do Produto
 
-As imagens são armazenadas localmente em `backend/uploads` e servidas estaticamente via `GET /uploads/...`.
+Armazenamento local em `backend/uploads/products`, servido estaticamente via `GET /uploads/...`.
 
 ```
-GET    /api/products/:id/images              # Lista imagens do produto
-POST   /api/products/:id/images              # Adiciona imagens (arquivo ou URL)
-DELETE /api/products/:id/images/:imageId     # Remove uma imagem
+GET    /api/products/:id/images              # Lista imagens do produto (ordenadas por position ASC)
+POST   /api/products/:id/images              # Upload de imagens (multipart/form-data, campo "images")
+DELETE /api/products/:id/images/:imageId     # Remove imagem e arquivo local quando aplicável
 ```
 
-Requests suportados em `POST /api/products/:id/images`:
-
-- Via JSON (adicionar por URL):
-```
-Content-Type: application/json
-{
-  "url": "https://exemplo.com/imagem.jpg",
-  "position": 0 // opcional
-}
-```
-
-- Via multipart/form-data (upload local):
-```
-Content-Type: multipart/form-data
-Campo: images (pode enviar múltiplos arquivos)
-```
+Regras do upload (MVP):
+- Até **5 arquivos** por request
+- Até **5MB** por arquivo
+- Tipos aceitos: `image/jpeg`, `image/png`, `image/webp`
+- URLs salvas de forma relativa: `/uploads/products/<arquivo>`
 
 ## Exemplos de Requests
 
@@ -111,21 +100,21 @@ curl -X POST http://localhost:3005/api/products \
 curl http://localhost:3005/api/products
 ```
 
-### Adicionar imagem por URL
+### Upload de imagens de um produto
 ```bash
-curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "url": "https://picsum.photos/seed/abc/800/600",
-    "position": 0
-  }'
+curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \
+  -F "images=@/caminho/para/imagem1.jpg" \
+  -F "images=@/caminho/para/imagem2.png"
 ```
 
-### Upload de imagens (multipart)
+### Listar imagens de um produto
 ```bash
-curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \\
-  -F "images=@/caminho/da/imagem1.jpg" \\
-  -F "images=@/caminho/da/imagem2.png"
+curl http://localhost:3005/api/products/<PRODUCT_ID>/images
+```
+
+### Remover uma imagem específica
+```bash
+curl -X DELETE http://localhost:3005/api/products/<PRODUCT_ID>/images/<IMAGE_ID>
 ```
 
 ## Modelo de Dados

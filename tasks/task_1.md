@@ -21,7 +21,7 @@ Implemente dentro de backend/ (não criar novo projeto), mantendo o setup atual,
 - Banco local **SQLite** 
 - Validação com **Zod**.
 - Estrutura mínima em @backend/src/: `index.ts`, `db.ts`, `products.ts` (router + handlers).
-- Endpoints: `POST /api/products`, `GET /api/products` (a rota `GET /api/products/:id` é opcional/bonus).
+- Endpoints: `POST /api/products`, `GET /api/products`
 - Modelo de Produto: <product_model>.
 - Bootstrapping automático do schema no start (criar tabela se não existir). Seed é opcional.
 - Scripts existentes (`dev`, `build`, `start`) devem continuar funcionando.
@@ -43,7 +43,7 @@ Além de implementar, você deve mostrar no final um resultado daquilo que foi e
 
 <critical>
 - **NÃO DEVE:** Fazer placeholders no banco de dados.
-- **NÃO DEVE:** Não mudar o schema do Produto.
+- **NÃO DEVE:** Mudar o schema do Produto.
 - **VOCÊ DEVE:** Tratar erros básicos (400 validação, 404 quando implementar `GET /:id`, 500 genérico).
 </critical>
 
