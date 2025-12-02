@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Product, CreateProduct, UpdateProduct } from '@/types/product';
 import {
   productsSchema,
-  createProductSchema,
   productSchema,
 } from '@/types/product';
 
@@ -53,14 +52,14 @@ async function createProduct(product: CreateProduct): Promise<Product> {
     throw new Error('Invalid response format');
   }
 
-  const validatedData = createProductSchema.omit({}).safeParse(data.data);
+  const validatedData = productSchema.safeParse(data.data);
 
   if (!validatedData.success) {
     console.error('Validation error:', validatedData.error);
     throw new Error('Invalid product data received');
   }
 
-  return data.data;
+  return validatedData.data;
 }
 
 async function updateProduct({
