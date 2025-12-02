@@ -67,7 +67,10 @@ export function AddProductDialog({ children }: AddProductDialogProps) {
               setFiles([]);
             },
             onError: (error) => {
-              const message = error instanceof Error ? error.message : 'Erro ao enviar imagens';
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : 'Erro ao enviar imagens';
               setUploadError(message);
             },
           }
@@ -185,7 +188,9 @@ export function AddProductDialog({ children }: AddProductDialogProps) {
               </div>
             )}
             {uploadError && (
-              <div className="text-sm text-destructive">Erro no upload: {uploadError}</div>
+              <div className="text-sm text-destructive">
+                Erro no upload: {uploadError}
+              </div>
             )}
             <div className="flex justify-end gap-2">
               <Button

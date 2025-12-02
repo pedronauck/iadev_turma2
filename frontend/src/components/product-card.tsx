@@ -1,5 +1,11 @@
 import type { Product } from '@/types/product';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,7 +36,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { deleteProduct, isDeleting } = useProducts();
-  const { data: images = [], isLoading: isLoadingImages } = useProductImages(product.id);
+  const { data: images = [], isLoading: isLoadingImages } = useProductImages(
+    product.id
+  );
 
   const coverUrl = images[0]?.url;
 

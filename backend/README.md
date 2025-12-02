@@ -36,6 +36,7 @@ DATABASE_URL=./data/database.sqlite
 ## API Endpoints
 
 ### Health Check
+
 ```
 GET /health
 ```
@@ -43,6 +44,7 @@ GET /health
 ### Produtos
 
 #### Criar Produto
+
 ```
 POST /api/products
 Content-Type: application/json
@@ -56,11 +58,13 @@ Content-Type: application/json
 ```
 
 #### Listar Produtos
+
 ```
 GET /api/products
 ```
 
 #### Buscar Produto por ID
+
 ```
 GET /api/products/:id
 ```
@@ -76,6 +80,7 @@ DELETE /api/products/:id/images/:imageId     # Remove imagem e arquivo local qua
 ```
 
 Regras do upload (MVP):
+
 - Até **5 arquivos** por request
 - Até **5MB** por arquivo
 - Tipos aceitos: `image/jpeg`, `image/png`, `image/webp`
@@ -84,6 +89,7 @@ Regras do upload (MVP):
 ## Exemplos de Requests
 
 ### Criar um produto
+
 ```bash
 curl -X POST http://localhost:3005/api/products \
   -H "Content-Type: application/json" \
@@ -96,11 +102,13 @@ curl -X POST http://localhost:3005/api/products \
 ```
 
 ### Listar todos os produtos
+
 ```bash
 curl http://localhost:3005/api/products
 ```
 
 ### Upload de imagens de um produto
+
 ```bash
 curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \
   -F "images=@/caminho/para/imagem1.jpg" \
@@ -108,11 +116,13 @@ curl -X POST http://localhost:3005/api/products/<PRODUCT_ID>/images \
 ```
 
 ### Listar imagens de um produto
+
 ```bash
 curl http://localhost:3005/api/products/<PRODUCT_ID>/images
 ```
 
 ### Remover uma imagem específica
+
 ```bash
 curl -X DELETE http://localhost:3005/api/products/<PRODUCT_ID>/images/<IMAGE_ID>
 ```
@@ -121,13 +131,13 @@ curl -X DELETE http://localhost:3005/api/products/<PRODUCT_ID>/images/<IMAGE_ID>
 
 ```typescript
 type Product = {
-  id: string;          // UUID gerado automaticamente
-  name: string;        // Nome do produto
+  id: string; // UUID gerado automaticamente
+  name: string; // Nome do produto
   description: string; // Descrição do produto
-  price: number;       // Preço em decimal
-  sku: string;         // Código único do produto
-  createdAt: string;   // ISO 8601 timestamp
-}
+  price: number; // Preço em decimal
+  sku: string; // Código único do produto
+  createdAt: string; // ISO 8601 timestamp
+};
 ```
 
 ## Estrutura do Projeto
@@ -157,6 +167,7 @@ backend/
 ## Testes
 
 Os testes cobrem:
+
 - ✅ Criação de produtos (POST /api/products)
 - ✅ Listagem de produtos (GET /api/products)
 - ✅ Busca por ID (GET /api/products/:id)

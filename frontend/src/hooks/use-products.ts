@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Product, CreateProduct, UpdateProduct } from '@/types/product';
-import { productsSchema, createProductSchema, productSchema } from '@/types/product';
+import {
+  productsSchema,
+  createProductSchema,
+  productSchema,
+} from '@/types/product';
 
 const API_BASE = '/api';
 
@@ -59,7 +63,13 @@ async function createProduct(product: CreateProduct): Promise<Product> {
   return data.data;
 }
 
-async function updateProduct({ id, data }: { id: string; data: UpdateProduct }): Promise<Product> {
+async function updateProduct({
+  id,
+  data,
+}: {
+  id: string;
+  data: UpdateProduct;
+}): Promise<Product> {
   const response = await fetch(`${API_BASE}/products/${id}`, {
     method: 'PUT',
     headers: {

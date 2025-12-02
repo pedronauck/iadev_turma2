@@ -8,7 +8,10 @@ type UploadPayload = {
   files: File[];
 };
 
-async function uploadProductImages({ productId, files }: UploadPayload): Promise<ProductImage[]> {
+async function uploadProductImages({
+  productId,
+  files,
+}: UploadPayload): Promise<ProductImage[]> {
   if (!files.length) {
     throw new Error('Selecione pelo menos uma imagem');
   }
@@ -62,7 +65,9 @@ export function useUploadProductImages() {
     mutationFn: uploadProductImages,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['product-images', variables.productId] });
+      queryClient.invalidateQueries({
+        queryKey: ['product-images', variables.productId],
+      });
     },
   });
 

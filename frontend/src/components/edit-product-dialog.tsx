@@ -29,7 +29,10 @@ interface EditProductDialogProps {
   children: React.ReactNode;
 }
 
-export function EditProductDialog({ product, children }: EditProductDialogProps) {
+export function EditProductDialog({
+  product,
+  children,
+}: EditProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -87,7 +90,9 @@ export function EditProductDialog({ product, children }: EditProductDialogProps)
               },
               onError: (error) => {
                 const message =
-                  error instanceof Error ? error.message : 'Erro ao enviar imagens';
+                  error instanceof Error
+                    ? error.message
+                    : 'Erro ao enviar imagens';
                 setUploadError(message);
               },
             }
@@ -199,7 +204,9 @@ export function EditProductDialog({ product, children }: EditProductDialogProps)
               </div>
             )}
             {uploadError && (
-              <div className="text-sm text-destructive">Erro no upload: {uploadError}</div>
+              <div className="text-sm text-destructive">
+                Erro no upload: {uploadError}
+              </div>
             )}
             <div className="flex justify-end gap-2">
               <Button

@@ -1,0 +1,711 @@
+---
+description: "Vitest testing best practices, patterns, and optimization guidelines for high-quality, maintainable, and performant test suites"
+globs: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "vitest.config.ts", "vitest.setup.ts"]
+alwaysApply: true
+---
+
+# Vitest Best Practices & Coding Standards
+
+## Overview
+
+This rule enforces Vitest best practices for writing maintainable, performant, and reliable tests. It covers test structure, performance optimization, mocking strategies, and configuration patterns for modern TypeScript/JavaScript projects.
+
+## Core Testing Principles
+
+### 1. AAA Pattern (Arrange-Act-Assert)
+
+Always structure tests using the AAA pattern for maximum clarity and maintainability:
+
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest';
+import { calculateTotal } from './calculator';
+
+describe('calculateTotal', () => {
+  let mockData;
+
+  // Arrange
+  beforeEach(() => {
+    mockData = { items: [10, 20, 30] };
+  });
+
+  it('should return sum of all items', () => {
+    // Arrange (additional setup if needed)
+    const expected = 60;
+
+    // Act
+    const result = calculateTotal(mockData.items);
+
+    // Assert
+    expect(result).toBe(expected);
+  });
+});
+```
+
+**Pattern Elements:**
+- **Arrange**: Set up test data, mocks, and initial state
+- **Act**: Execute the code being tested with controlled inputs
+- **Assert**: Verify the output meets expectations
+
+### 2. Test File Organization
+
+Place test files adjacent to source code following a flat hierarchy:
+
+```
+src/
+  components/
+    Button.tsx
+    Button.test.tsx
+  utils/
+    helpers.ts
+    helpers.test.ts
+  types/
+    index.ts
+```
+
+**Benefits:**
+- Easier to locate and maintain related test files
+- Clear visibility of test coverage
+- Simplified imports and refactoring
+
+### 3. Descriptive Test Names
+
+Use clear, descriptive test names that explain the behavior being tested:
+
+```typescript
+// ✅ GOOD - Describes the behavior and expected outcome
+it('should return the sum when adding two positive numbers', () => {});
+it('should throw an error when dividing by zero', () => {});
+it('should emit onChange event when input value changes', () => {});
+
+// ❌ AVOID - Vague or unclear names
+it('tests addition', () => {});
+it('works correctly', () => {});
+it('component test', () => {});
+```
+
+## Test Structure & Organization
+
+### 4. Organize with Describe Blocks
+
+Group related tests using nested describe blocks for logical organization:
+
+```typescript
+describe('UserService', () => {
+  describe('authentication', () => {
+    it('should login with valid credentials', () => {});
+    it('should reject invalid credentials', () => {});
+  });
+
+  describe('profile management', () => {
+    it('should update user profile', () => {});
+    it('should handle profile update errors', () => {});
+  });
+
+  describe('permissions', () => {
+    it('should grant admin access', () => {});
+    it('should restrict user access', () => {});
+  });
+});
+```
+
+### 5. Setup & Teardown Hooks
+
+Use Vitest hooks for consistent test initialization and cleanup:
+
+```typescript
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+
+describe('Database Service', () => {
+  // Runs once before all tests in this suite
+  beforeAll(() => {
+    console.log('Setting up database');
+  });
+
+  // Runs before each test
+  beforeEach(() => {
+    mockData = { /* initial state */ };
+  });
+
+  // Runs after each test
+  afterEach(() => {
+    vi.clearAllMocks(); // Reset all mocks
+  });
+
+  // Runs once after all tests
+  afterAll(() => {
+    console.log('Tearing down database');
+  });
+
+  it('should perform operation', () => {
+    // Test implementation
+  });
+});
+```
+
+**Hook Guidelines:**
+- Use `beforeAll` for expensive setup operations (database connections)
+- Use `beforeEach` for test isolation and consistency
+- Always reset mocks in `afterEach` to prevent test pollution
+- Use `afterAll` for cleanup operations
+
+## Mocking & Test Isolation
+
+### 6. Mock External Dependencies
+
+Always mock external APIs, network calls, and heavy dependencies:
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { fetchUserData } from './api';
+
+describe('fetchUserData', () => {
+  it('should fetch user data successfully', async () => {
+    // Mock the fetch globally
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      json: async () => ({ id: 1, name: 'John' }),
+    });
+
+    const result = await fetchUserData(1);
+
+    expect(result).toEqual({ id: 1, name: 'John' });
+    expect(global.fetch).toHaveBeenCalledWith('/api/users/1');
+  });
+
+  it('should handle fetch errors', async () => {
+    global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'));
+
+    await expect(fetchUserData(1)).rejects.toThrow('Network error');
+  });
+});
+```
+
+### 7. Module Mocking
+
+Use `vi.mock()` for module-level mocking with proper cleanup:
+
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mock entire module
+vi.mock('./database', () => ({
+  getUser: vi.fn(),
+  saveUser: vi.fn(),
+}));
+
+import { getUser, saveUser } from './database';
+
+describe('UserRepository', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should get user from database', async () => {
+    const mockUser = { id: 1, name: 'Alice' };
+    vi.mocked(getUser).mockResolvedValueOnce(mockUser);
+
+    const result = await getUser(1);
+
+    expect(result).toEqual(mockUser);
+  });
+});
+```
+
+### 8. Proper Mock Reset
+
+Reset mocks consistently to prevent test interdependencies:
+
+```typescript
+import { describe, it, expect, vi, afterEach } from 'vitest';
+
+describe('Service with mocks', () => {
+  afterEach(() => {
+    // Reset all mocks after each test
+    vi.clearAllMocks(); // Clear call history
+    vi.resetAllMocks(); // Reset mock implementations
+    // OR vi.restoreAllMocks(); // Restore original implementations
+  });
+
+  it('test one', () => {
+    // Test implementation
+  });
+
+  it('test two', () => {
+    // Mocks from test one won't leak here
+  });
+});
+```
+
+## Performance Optimization
+
+### 9. Configure Vitest for Performance
+
+Optimize `vitest.config.ts` for your project's needs:
+
+```typescript
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    // Use 'threads' pool for better performance in larger projects
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: false, // Run tests in parallel
+      },
+    },
+
+    // Disable isolation for faster tests if your project handles cleanup properly
+    isolate: true, // Set to false only if tests don't have side effects
+
+    // Enable test file parallelism
+    fileParallelism: true,
+
+    // Globals: No need to import describe, it, expect
+    globals: true,
+
+    // Environment: Use 'node' for backend, 'jsdom' for frontend
+    environment: 'node',
+
+    // Coverage configuration
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+      ],
+    },
+
+    // Include/exclude patterns
+    include: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    exclude: ['node_modules', 'dist'],
+  },
+});
+```
+
+### 10. Performance Monitoring
+
+Identify and fix slow tests:
+
+```typescript
+// Run tests with timing information
+// npm run test -- --reporter=verbose
+
+describe('Performance-sensitive operations', () => {
+  it('should complete within acceptable time', async () => {
+    const start = performance.now();
+
+    // Your operation
+    const result = await heavyComputation();
+
+    const duration = performance.now() - start;
+
+    expect(result).toBeDefined();
+    expect(duration).toBeLessThan(1000); // Complete within 1 second
+  });
+});
+```
+
+**Performance Tips:**
+- Use `pool: 'threads'` instead of `pool: 'forks'` for faster parallel execution
+- Avoid unnecessary test isolation if project handles cleanup
+- Minimize external dependencies and heavy imports
+- Use `vi.hoisted()` for early mocking of imports
+- Consider test sharding for CI/CD pipelines (`--shard=1/n`)
+
+### 11. Manage Heavy Imports
+
+Keep test startup times fast by avoiding circular dependencies and heavy imports:
+
+```typescript
+// ✅ GOOD - Lazy import only what's needed
+import { vi } from 'vitest';
+
+const { heavyModule } = await import('./heavy-module');
+
+// ❌ AVOID - Heavy imports at file level
+import heavyLibrary from 'huge-dependency'; // Slows down test collection
+```
+
+## Assertions & Expectations
+
+### 12. Use Meaningful Assertions
+
+Write specific, descriptive assertions rather than generic checks:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+
+// ✅ GOOD - Specific assertions
+expect(user).toHaveProperty('email');
+expect(result).toBeInstanceOf(Error);
+expect(array).toHaveLength(5);
+expect(value).toBeGreaterThan(0);
+expect(callback).toHaveBeenCalledWith(expectedArg);
+
+// ❌ AVOID - Generic or weak assertions
+expect(user).toBeTruthy();
+expect(result.error).toBeDefined();
+expect(array).toBeTruthy();
+```
+
+### 13. Snapshot Testing
+
+Use snapshots for complex outputs, but with caution:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { renderComponent } from '@testing-library/vue';
+
+describe('ComponentSnapshot', () => {
+  it('should match snapshot', () => {
+    const { html } = renderComponent(MyComponent);
+    expect(html()).toMatchSnapshot();
+  });
+});
+```
+
+**Snapshot Best Practices:**
+- Use only for component UI and complex output structures
+- Review snapshot changes carefully in code review
+- Avoid snapshots for frequently changing output
+- Keep snapshots focused and small
+- Use `toMatchInlineSnapshot()` for small snapshots
+
+## Component Testing (React/Vue)
+
+### 14. Test User Interactions
+
+Focus on user behavior rather than implementation details:
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button Component', () => {
+  it('should call onClick handler when clicked', () => {
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+
+    const button = screen.getByRole('button', { name: /click me/i });
+    fireEvent.click(button);
+
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+
+  it('should be disabled when disabled prop is true', () => {
+    render(<Button disabled>Disabled Button</Button>);
+
+    const button = screen.getByRole('button');
+    expect(button).toBeDisabled();
+  });
+});
+```
+
+### 15. Test Accessibility
+
+Ensure components are accessible:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+
+describe('Form Accessibility', () => {
+  it('should have associated labels for all inputs', () => {
+    render(
+      <form>
+        <label htmlFor="email">Email:</label>
+        <input id="email" type="email" />
+      </form>
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('id', 'email');
+  });
+
+  it('should support keyboard navigation', () => {
+    render(<Button>Submit</Button>);
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveFocus(); // After navigation
+  });
+});
+```
+
+## Error Handling & Edge Cases
+
+### 16. Test Error Scenarios
+
+Always test error conditions and edge cases:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+
+describe('Error Handling', () => {
+  it('should throw error with invalid input', () => {
+    expect(() => validate(null)).toThrow(TypeError);
+    expect(() => validate(undefined)).toThrow(TypeError);
+  });
+
+  it('should handle empty arrays', () => {
+    const result = sum([]);
+    expect(result).toBe(0);
+  });
+
+  it('should handle extreme values', () => {
+    expect(sum([Number.MAX_VALUE])).toBeDefined();
+    expect(sum([Number.MIN_VALUE])).toBeDefined();
+  });
+});
+```
+
+### 17. Test Exception Messages
+
+Verify error messages are helpful:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+
+describe('Validation', () => {
+  it('should provide descriptive error message', () => {
+    const errorMessage = 'Email must be a valid format';
+
+    expect(() => {
+      validateEmail('invalid-email');
+    }).toThrow(errorMessage);
+
+    expect(() => {
+      validateEmail('invalid-email');
+    }).toThrow(/valid format/);
+  });
+});
+```
+
+## Code Coverage
+
+### 18. Maintain Adequate Coverage
+
+Configure coverage thresholds and monitor coverage:
+
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      lines: 80,
+      functions: 80,
+      branches: 75,
+      statements: 80,
+    },
+  },
+});
+```
+
+**Run coverage:**
+```bash
+vitest run --coverage
+```
+
+**Coverage Guidelines:**
+- Aim for 80%+ overall coverage
+- Prioritize critical paths and error handling
+- Don't obsess over 100% coverage
+- Focus on meaningful tests, not just line coverage
+
+## Configuration & Patterns
+
+### 19. Type-Safe Mocking with TypeScript
+
+Leverage TypeScript for type-safe mocks:
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import type { UserService } from './types';
+
+describe('TypeSafe Mocking', () => {
+  it('should mock with type safety', () => {
+    const userServiceMock: UserService = {
+      getUser: vi.fn(),
+      saveUser: vi.fn(),
+      deleteUser: vi.fn(),
+    };
+
+    userServiceMock.getUser.mockResolvedValueOnce({
+      id: 1,
+      name: 'Test User',
+    });
+
+    // Type checking ensures we don't pass invalid types
+    expect(userServiceMock.getUser).toBeDefined();
+  });
+});
+```
+
+### 20. Setup Test Utilities
+
+Create reusable test utilities for consistent setup:
+
+```typescript
+// tests/setup.ts
+import { vi } from 'vitest';
+
+export const setupMockFetch = () => {
+  global.fetch = vi.fn();
+  return global.fetch;
+};
+
+export const createMockUser = (overrides = {}) => {
+  return {
+    id: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+    ...overrides,
+  };
+};
+
+// Usage in tests
+import { setupMockFetch, createMockUser } from '../setup';
+
+describe('API Tests', () => {
+  it('should fetch user data', () => {
+    setupMockFetch();
+    const mockUser = createMockUser();
+    // Use in test
+  });
+});
+```
+
+## Deprecated Patterns to Avoid
+
+### ❌ DO NOT USE
+
+**1. Async/Await Without Proper Handling:**
+```typescript
+// ❌ AVOID - No error handling
+it('should fetch data', async () => {
+  const data = await fetchData();
+  expect(data).toBeDefined();
+});
+
+// ✅ USE - With proper assertions
+it('should fetch data', async () => {
+  const data = await fetchData();
+  expect(data).toBeDefined();
+  expect(data).toHaveProperty('id');
+});
+```
+
+**2. Not Using Globals in Config:**
+```typescript
+// ❌ AVOID - Unnecessary imports
+import { describe, it, expect } from 'vitest';
+
+// ✅ USE - Enable globals in config
+// Then just use describe, it, expect directly
+```
+
+**3. Storing State Between Tests:**
+```typescript
+// ❌ AVOID - Test pollution
+let counter = 0;
+it('should increment', () => {
+  counter++;
+  expect(counter).toBe(1);
+});
+it('should not use previous state', () => {
+  expect(counter).toBe(0); // FAILS - counter is 1!
+});
+
+// ✅ USE - Fresh state per test
+beforeEach(() => {
+  counter = 0;
+});
+```
+
+**4. Using `vmThreads` Pool:**
+```typescript
+// ❌ AVOID - Cannot disable isolation, slower startup
+test: {
+  pool: 'vmThreads',
+}
+
+// ✅ USE - For better performance
+test: {
+  pool: 'threads',
+}
+```
+
+**5. Not Isolating Tests Properly:**
+```typescript
+// ❌ AVOID - Tests affecting each other
+vi.mock('./api');
+describe('API tests', () => {
+  it('test 1', () => { /* modifies mock */ });
+  it('test 2', () => { /* expects clean mock */ });
+});
+
+// ✅ USE - Reset mocks between tests
+afterEach(() => {
+  vi.clearAllMocks();
+});
+```
+
+## Verification Checklist
+
+Before committing test code, verify:
+
+- [ ] Tests follow AAA pattern (Arrange-Act-Assert)
+- [ ] Test names clearly describe the behavior being tested
+- [ ] Mocks are properly reset between tests
+- [ ] No test interdependencies or state leakage
+- [ ] Error scenarios and edge cases are tested
+- [ ] Component tests verify user interactions, not implementation
+- [ ] Coverage is adequate (80%+) and meaningful
+- [ ] Performance is acceptable (no slow test startup)
+- [ ] Async operations properly await results
+- [ ] Type safety is maintained throughout tests
+
+## Quick Reference Commands
+
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test -- --watch
+
+# Run specific test file
+npm run test -- Button.test.tsx
+
+# Run tests matching pattern
+npm run test -- -t "should update"
+
+# Generate coverage report
+npm run test -- --coverage
+
+# Run with UI (visual test runner)
+npm run test -- --ui
+
+# Debug tests
+npm run test -- --inspect-brk
+```
+
+## Additional Resources
+
+- [Official Vitest Documentation](https://vitest.dev)
+- [Vitest Performance Guide](https://vitest.dev/guide/improving-performance)
+- [Component Testing Guide](https://vitest.dev/guide/browser/component-testing)
+- [Testing Library Best Practices](https://testing-library.com/docs/best-practices)
+
+---
+
+**Last Updated:** December 2025
+**Version:** 1.0
+**Applies To:** All Vitest test files in this project

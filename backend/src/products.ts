@@ -60,7 +60,9 @@ productsRouter.post('/products', async (c) => {
       return c.json(
         {
           error: 'Validation error',
-          message: validationResult.error.issues.map((e) => e.message).join(', '),
+          message: validationResult.error.issues
+            .map((e) => e.message)
+            .join(', '),
         },
         400
       );
@@ -141,7 +143,9 @@ productsRouter.put('/products/:id', async (c) => {
       return c.json(
         {
           error: 'Validation error',
-          message: validationResult.error.issues.map((e) => e.message).join(', '),
+          message: validationResult.error.issues
+            .map((e) => e.message)
+            .join(', '),
         },
         400
       );
@@ -230,35 +234,54 @@ productsRouter.post('/products/:id/images', async (c) => {
     }
 
     const formData = await c.req.formData();
-    const files = formData.getAll('images').filter((file): file is File => file instanceof File);
+    const files = formData
+      .getAll('images')
+      .filter((file): file is File => file instanceof File);
 
     if (!files.length) {
-      return c.json({ error: 'Validation error', message: 'No images provided' }, 400);
+      return c.json(
+        { error: 'Validation error', message: 'No images provided' },
+        400
+      );
     }
 
     if (files.length > MAX_FILES) {
       return c.json(
-        { error: 'Validation error', message: `Maximum of ${MAX_FILES} files per request` },
+        {
+          error: 'Validation error',
+          message: `Maximum of ${MAX_FILES} files per request`,
+        },
         400
       );
     }
 
     for (const file of files) {
       if (file.size === 0) {
-        return c.json({ error: 'Validation error', message: 'Empty file is not allowed' }, 400);
+        return c.json(
+          { error: 'Validation error', message: 'Empty file is not allowed' },
+          400
+        );
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        return c.json({ error: 'File too large', message: 'Max size is 5MB per file' }, 413);
+        return c.json(
+          { error: 'File too large', message: 'Max size is 5MB per file' },
+          413
+        );
       }
 
       if (!ALLOWED_MIMETYPES.has(file.type)) {
-        return c.json({ error: 'Unsupported media type', message: 'Invalid image type' }, 415);
+        return c.json(
+          { error: 'Unsupported media type', message: 'Invalid image type' },
+          415
+        );
       }
     }
 
     const currentMax = db
-      .prepare('SELECT MAX(position) as maxPos FROM product_images WHERE productId = ?')
+      .prepare(
+        'SELECT MAX(position) as maxPos FROM product_images WHERE productId = ?'
+      )
       .get(productId) as { maxPos: number | null };
 
     let nextPosition = (currentMax?.maxPos ?? -1) + 1;
@@ -312,7 +335,9 @@ productsRouter.delete('/products/:id/images/:imageId', (c) => {
       return c.json({ error: 'Not found', message: 'Product not found' }, 404);
     }
 
-    const imageStmt = db.prepare('SELECT * FROM product_images WHERE id = ? AND productId = ?');
+    const imageStmt = db.prepare(
+      'SELECT * FROM product_images WHERE id = ? AND productId = ?'
+    );
     const image = imageStmt.get(imageId, productId) as ProductImage | undefined;
 
     if (!image) {

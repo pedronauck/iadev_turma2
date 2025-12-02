@@ -5,7 +5,9 @@ import fs from 'fs';
 
 config();
 
-const DATABASE_URL = process.env.DATABASE_URL || path.join(process.cwd(), 'data', 'database.sqlite');
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  path.join(process.cwd(), 'data', 'database.sqlite');
 const dbDir = path.dirname(DATABASE_URL);
 
 // Ensure data directory exists

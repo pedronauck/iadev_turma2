@@ -34,9 +34,7 @@ app.use(
   serveStatic({
     root: uploadsRoot,
     rewriteRequestPath: (pathStr) =>
-      pathStr
-        .replace(/^\/uploads\//, '')
-        .replace(/^\/+/, ''),
+      pathStr.replace(/^\/uploads\//, '').replace(/^\/+/, ''),
   })
 );
 
