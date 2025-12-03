@@ -100,6 +100,35 @@ async function updateProduct({
   return validatedData.data;
 }
 
+async function fetchProductById(id: string): Promise<Product> {
+  const response = await fetch(`${API_BASE}/products/${id}`);
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error('Produto não encontrado');
+    }
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `Erro ao buscar produto: ${response.statusText}`
+    );
+  }
+
+  const data = await response.json();
+
+  if (!data.data) {
+    throw new Error('Invalid response format');
+  }
+
+  const validatedData = productSchema.safeParse(data.data);
+
+  if (!validatedData.success) {
+    console.error('Validation error:', validatedData.error);
+    throw new Error('Invalid product data received');
+  }
+
+  return validatedData.data;
+}
+
 async function deleteProduct(id: string): Promise<void> {
   const response = await fetch(`${API_BASE}/products/${id}`, {
     method: 'DELETE',
@@ -160,6 +189,16 @@ export function useProducts() {
     isDeleting: deleteProductMutation.isPending,
     deleteError: deleteProductMutation.error,
   };
+}
+
+export function useProductById(id: string) {
+  return useQuery({
+    queryKey: ['product', id],
+    queryFn: () => fetchProductById(id),
+    enabled: !!id,
+    staleTime: 30_000,
+    retry: 1,
+  });
 }
 
 export type UseProductsReturn = ReturnType<typeof useProducts>;

@@ -132,6 +132,29 @@ productsRouter.get('/products', async (c) => {
   }
 });
 
+// GET /api/products/:id
+productsRouter.get('/products/:id', (c) => {
+  try {
+    const id = c.req.param('id');
+    const product = getProductByIdStmt.get(id) as Product | undefined;
+
+    if (!product) {
+      return c.json({ error: 'Not found', message: 'Product not found' }, 404);
+    }
+
+    return c.json({ data: product }, 200);
+  } catch (error: any) {
+    console.error('Error fetching product:', error);
+    return c.json(
+      {
+        error: 'Something went wrong!',
+        message: error.message,
+      },
+      500
+    );
+  }
+});
+
 // PUT /api/products/:id
 productsRouter.put('/products/:id', async (c) => {
   try {

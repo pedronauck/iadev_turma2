@@ -2,6 +2,61 @@
 Você é um engenheiro de software sênior. Vai implementar uma **tela de visualização/detalhes de produto** no frontend (React/Vite) do monorepo existente, integrando **TanStack Router** para navegação e consumindo os endpoints de produtos e imagens já implementados no backend (Hono + SQLite). O foco é criar uma experiência visual agradável para exibir todas as imagens do produto em um layout moderno.
 </role>
 
+<rules>
+**CRÍTICO: Você DEVE seguir rigorosamente as regras definidas em `.cursor/rules/`:**
+
+1. **React** (`.cursor/rules/react.mdc`):
+   - Usar componentes funcionais exclusivamente
+   - Extrair lógica não-visual em custom hooks (`useXxx`)
+   - Usar TanStack Query para server state
+   - Usar Zustand para shared client state (se necessário)
+   - Seguir padrão de organização por feature/domain
+   - Implementar Error Boundaries para tratamento de erros
+   - Garantir acessibilidade (semantic HTML, keyboard navigation, ARIA labels)
+
+2. **TypeScript** (`.cursor/rules/typescript.mdc`):
+   - Usar strict mode e noUncheckedIndexedAccess
+   - Ser explícito com parâmetros de função, inferir tipos de retorno
+   - Preferir interfaces para objetos extensíveis, types para unions
+   - Usar utility types antes de criar custom types
+   - Configurar path aliases (`@/*` para `./src/*`)
+   - Implementar type guards para runtime safety
+
+3. **Shadcn UI** (`.cursor/rules/shadcn.mdc`):
+   - **OBRIGATÓRIO:** Usar design tokens do tema (`bg-background`, `text-foreground`, `border-border`, etc.)
+   - **NUNCA:** Usar cores hardcoded (`bg-white`, `text-black`, `bg-blue-500`)
+   - Customizar componentes livremente (você é dono do código)
+   - Preservar atributos de acessibilidade do Radix UI
+   - Usar Tailwind Variants para variantes de componentes
+
+4. **Tailwind CSS** (`.cursor/rules/tailwindcss.mdc`):
+   - **OBRIGATÓRIO:** Usar design tokens para theme switching (`bg-background`, `text-foreground`, etc.)
+   - **NUNCA:** Usar valores de cor explícitos que quebram theme switching
+   - Usar CSS-first configuration com `@theme` directive (Tailwind v4)
+   - Mobile-first approach para responsividade
+   - Quebrar strings de classes longas em arrays quando > 100 caracteres
+   - Usar Tailwind Variants para estilização de componentes
+
+5. **Vitest** (`.cursor/rules/vitest.mdc`) - se escrever testes:
+   - Seguir padrão AAA (Arrange-Act-Assert)
+   - Usar nomes descritivos para testes
+   - Mockar dependências externas
+   - Resetar mocks entre testes (`afterEach`)
+   - Testar interações do usuário, não detalhes de implementação
+
+6. **Bun** (`.cursor/rules/bunjs.mdc`):
+   - Usar `bun` em vez de `node`, `npm`, `pnpm`
+   - Usar `bun run <script>` para executar scripts
+   - Bun carrega `.env` automaticamente (não usar dotenv)
+
+**Validação obrigatória antes de finalizar:**
+- Executar `bun run lint` e corrigir todos os erros
+- Executar `bun run typecheck` (se configurado) e garantir sem erros
+- Executar `bun run test` e garantir que todos passam
+- Verificar que design tokens estão sendo usados (não cores hardcoded)
+- Verificar acessibilidade básica (keyboard navigation, ARIA labels)
+</rules>
+
 <dependent_tasks>
 - Baseie-se nas tarefas anteriores:
   - `@tasks/task_1.md` (backend de produtos)
@@ -68,7 +123,7 @@ Endpoints disponíveis (implementados em tarefas anteriores):
 </backend_context>
 
 <layout_sugerido>
-- use o Figma MCP com esse link https://www.figma.com/design/2ozcLy62AQ7GJ8VG8ear4A/Untitled?node-id=0-99&t=cndUDpghmi1JavpJ-4 como base
+- use o Figma MCP com esse link https://www.figma.com/design/2ozcLy62AQ7GJ8VG8ear4A/Untitled?node-id=0-99&t=SUpyQwjRaSRuVPg0-4 como base
 </layout_sugerido>
 
 <typing>
