@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CartDrawer } from '@/components/cart-drawer';
 import * as useCartModule from '@/hooks/use-cart';
 
@@ -30,6 +30,10 @@ vi.mock('@/components/cart-drawer-item', () => ({
 }));
 
 describe('CartDrawer', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders drawer with items', () => {
     const useCartDrawerSpy = vi
       .spyOn(useCartModule, 'useCartDrawer')
@@ -91,5 +95,48 @@ describe('CartDrawer', () => {
 
     useCartDrawerSpy.mockRestore();
     useCartSummarySpy.mockRestore();
+  });
+
+  it('closes drawer via close button', () => {
+    const mockClose = vi.fn();
+    const useCartDrawerSpy = vi
+      .spyOn(useCartModule, 'useCartDrawer')
+      .mockReturnValue({
+        isOpen: true,
+        items: [mockItem],
+        close: mockClose,
+        open: vi.fn(),
+        toggle: vi.fn(),
+      });
+
+    render(<CartDrawer />);
+
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    fireEvent.click(closeButton);
+
+    expect(mockClose).toHaveBeenCalled();
+
+    useCartDrawerSpy.mockRestore();
+  });
+
+  it('closes drawer via Escape key', () => {
+    const mockClose = vi.fn();
+    const useCartDrawerSpy = vi
+      .spyOn(useCartModule, 'useCartDrawer')
+      .mockReturnValue({
+        isOpen: true,
+        items: [mockItem],
+        close: mockClose,
+        open: vi.fn(),
+        toggle: vi.fn(),
+      });
+
+    render(<CartDrawer />);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(mockClose).toHaveBeenCalled();
+
+    useCartDrawerSpy.mockRestore();
   });
 });

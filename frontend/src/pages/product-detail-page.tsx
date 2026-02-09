@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { ImageGallery } from "@/components/image-gallery";
-import { StarRating } from "@/components/star-rating";
-import { QuantitySelector } from "@/components/quantity-selector";
-import { DeliveryInfoCard } from "@/components/delivery-info-card";
-import { EditProductDialog } from "@/components/edit-product-dialog";
+import { useState } from 'react';
+import { useParams, useNavigate } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
+import { ImageGallery } from '@/components/image-gallery';
+import { StarRating } from '@/components/star-rating';
+import { QuantitySelector } from '@/components/quantity-selector';
+import { DeliveryInfoCard } from '@/components/delivery-info-card';
+import { EditProductDialog } from '@/components/edit-product-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,18 +19,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useProductById, useProducts } from "@/hooks/use-products";
-import { useProductImages } from "@/hooks/use-product-images";
-import { ArrowLeft, Pencil, Trash2, AlertCircle, Heart } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { formatPriceBRL } from "@/lib/utils";
+} from '@/components/ui/alert-dialog';
+import { useProductById, useProducts } from '@/hooks/use-products';
+import { useProductImages } from '@/hooks/use-product-images';
+import { ArrowLeft, Pencil, Trash2, AlertCircle, Heart } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { formatPriceBRL } from '@/lib/utils';
+import { useCartActions } from '@/hooks/use-cart';
+import { toast } from 'sonner';
 
 export function ProductDetailPage() {
-  const { id } = useParams({ from: "/product/$id" });
+  const { id } = useParams({ from: '/product/$id' });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState(1);
+  const { addItem } = useCartActions();
 
   const {
     data: product,
@@ -53,10 +56,10 @@ export function ProductDetailPage() {
 
     deleteProduct(product.id, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["products"] });
-        queryClient.invalidateQueries({ queryKey: ["product", id] });
-        queryClient.invalidateQueries({ queryKey: ["product-images", id] });
-        navigate({ to: "/" });
+        queryClient.invalidateQueries({ queryKey: ['products'] });
+        queryClient.invalidateQueries({ queryKey: ['product', id] });
+        queryClient.invalidateQueries({ queryKey: ['product-images', id] });
+        navigate({ to: '/' });
       },
     });
   };
@@ -66,7 +69,7 @@ export function ProductDetailPage() {
       <div className="container mx-auto px-4 py-8 space-y-8">
         <Button
           variant="ghost"
-          onClick={() => navigate({ to: "/" })}
+          onClick={() => navigate({ to: '/' })}
           className="gap-2 pl-0 hover:pl-2 transition-all"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -76,7 +79,10 @@ export function ProductDetailPage() {
           <div className="flex gap-4 flex-col md:flex-row">
             <div className="order-2 md:order-1 flex md:flex-col gap-4 overflow-hidden">
               {Array.from({ length: 4 }).map((_, index) => (
-                <Skeleton key={index} className="w-24 h-24 md:w-32 md:h-32 rounded-lg shrink-0" />
+                <Skeleton
+                  key={index}
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-lg shrink-0"
+                />
               ))}
             </div>
             <Skeleton className="order-1 md:order-2 w-full aspect-square md:aspect-[4/5] rounded-lg" />
@@ -102,30 +108,39 @@ export function ProductDetailPage() {
 
   if (isErrorProduct) {
     const isNotFound =
-      productError instanceof Error && productError.message === "Produto não encontrado";
+      productError instanceof Error &&
+      productError.message === 'Produto não encontrado';
 
     return (
       <div className="container mx-auto px-4 py-8 space-y-6">
-        <Button variant="ghost" onClick={() => navigate({ to: "/" })} className="gap-2 pl-0">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: '/' })}
+          className="gap-2 pl-0"
+        >
           <ArrowLeft className="h-4 w-4" />
           Voltar para lista
         </Button>
         <div className="max-w-2xl mx-auto mt-12">
-          <Alert variant={isNotFound ? "default" : "destructive"}>
+          <Alert variant={isNotFound ? 'default' : 'destructive'}>
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>
-              {isNotFound ? "Produto não encontrado" : "Erro ao carregar produto"}
+              {isNotFound
+                ? 'Produto não encontrado'
+                : 'Erro ao carregar produto'}
             </AlertTitle>
             <AlertDescription>
               {isNotFound
-                ? "O produto que você está procurando não existe ou foi removido."
+                ? 'O produto que você está procurando não existe ou foi removido.'
                 : productError instanceof Error
                   ? productError.message
-                  : "Ocorreu um erro inesperado ao carregar o produto."}
+                  : 'Ocorreu um erro inesperado ao carregar o produto.'}
             </AlertDescription>
           </Alert>
           <div className="flex justify-center mt-6">
-            <Button onClick={() => navigate({ to: "/" })}>Voltar para lista</Button>
+            <Button onClick={() => navigate({ to: '/' })}>
+              Voltar para lista
+            </Button>
           </div>
         </div>
       </div>
@@ -139,7 +154,7 @@ export function ProductDetailPage() {
       <div className="mb-8">
         <Button
           variant="ghost"
-          onClick={() => navigate({ to: "/" })}
+          onClick={() => navigate({ to: '/' })}
           className="gap-2 pl-0 hover:pl-2 transition-all"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -150,7 +165,11 @@ export function ProductDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
         {/* Image Gallery Section */}
         <div>
-          <ImageGallery images={images} productName={product.name} isLoading={isLoadingImages} />
+          <ImageGallery
+            images={images}
+            productName={product.name}
+            isLoading={isLoadingImages}
+          />
           {isErrorImages && (
             <Alert variant="destructive" className="mt-4">
               <AlertCircle className="h-4 w-4" />
@@ -158,7 +177,7 @@ export function ProductDetailPage() {
               <AlertDescription>
                 {imagesError instanceof Error
                   ? imagesError.message
-                  : "Não foi possível carregar as imagens do produto."}
+                  : 'Não foi possível carregar as imagens do produto.'}
               </AlertDescription>
             </Alert>
           )}
@@ -167,7 +186,9 @@ export function ProductDetailPage() {
         {/* Product Information Section */}
         <div className="flex flex-col space-y-8">
           <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">{product.name}</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+              {product.name}
+            </h1>
 
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
@@ -180,7 +201,9 @@ export function ProductDetailPage() {
               </span>
             </div>
 
-            <p className="text-3xl font-bold text-foreground">{formatPriceBRL(product.price)}</p>
+            <p className="text-3xl font-bold text-foreground">
+              {formatPriceBRL(product.price)}
+            </p>
           </div>
 
           <div className="prose prose-slate dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
@@ -196,10 +219,27 @@ export function ProductDetailPage() {
                 onChange={setQuantity}
                 className="w-full sm:w-auto"
               />
-              <Button className="flex-1 h-10 text-base font-medium" size="lg">
-                Add to Cart
+              <Button
+                className="flex-1 h-10 text-base font-medium"
+                size="lg"
+                onClick={() => {
+                  addItem({
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    imageUrl: images[0]?.url ?? null,
+                    quantity,
+                  });
+                  toast.success('Produto adicionado ao carrinho!');
+                }}
+              >
+                Adicionar ao Carrinho
               </Button>
-              <Button variant="outline" size="icon" className="size-10 shrink-0">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-10 shrink-0"
+              >
                 <Heart className="h-5 w-5" />
               </Button>
             </div>
@@ -247,8 +287,8 @@ export function ProductDetailPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Esta ação não pode ser desfeita. Isso excluirá permanentemente o produto{" "}
-                      <strong>{product.name}</strong>.
+                      Esta ação não pode ser desfeita. Isso excluirá
+                      permanentemente o produto <strong>{product.name}</strong>.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -258,7 +298,7 @@ export function ProductDetailPage() {
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       disabled={isDeleting}
                     >
-                      {isDeleting ? "Excluindo..." : "Excluir"}
+                      {isDeleting ? 'Excluindo...' : 'Excluir'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
