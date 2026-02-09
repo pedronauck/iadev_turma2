@@ -1,6 +1,6 @@
-import { useCartStore } from "@/store/cart-store";
-import { shallow } from "zustand/shallow";
-import type { CartItem } from "@/types/cart";
+import { useCartStore } from '@/store/cart-store';
+import { useShallow } from 'zustand/shallow';
+import type { CartItem } from '@/types/cart';
 
 /**
  * Returns cart mutation actions with stable function references.
@@ -8,13 +8,12 @@ import type { CartItem } from "@/types/cart";
  */
 export function useCartActions() {
   return useCartStore(
-    (s) => ({
+    useShallow((s) => ({
       addItem: s.addItem,
       removeItem: s.removeItem,
       updateQuantity: s.updateQuantity,
       clearCart: s.clearCart,
-    }),
-    shallow,
+    }))
   );
 }
 
@@ -23,7 +22,9 @@ export function useCartActions() {
  * Subscribes only to the specific item.
  */
 export function useCartItem(productId: string): CartItem | undefined {
-  return useCartStore((s) => s.items.find((item) => item.productId === productId));
+  return useCartStore((s) =>
+    s.items.find((item) => item.productId === productId)
+  );
 }
 
 /**
@@ -32,11 +33,13 @@ export function useCartItem(productId: string): CartItem | undefined {
  */
 export function useCartSummary() {
   return useCartStore(
-    (s) => ({
+    useShallow((s) => ({
       totalItems: s.items.reduce((sum, item) => sum + item.quantity, 0),
-      totalPrice: s.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    }),
-    shallow,
+      totalPrice: s.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      ),
+    }))
   );
 }
 
@@ -46,13 +49,12 @@ export function useCartSummary() {
  */
 export function useCartDrawer() {
   return useCartStore(
-    (s) => ({
+    useShallow((s) => ({
       isOpen: s.isDrawerOpen,
       items: s.items,
       open: s.openDrawer,
       close: s.closeDrawer,
       toggle: s.toggleDrawer,
-    }),
-    shallow,
+    }))
   );
 }
