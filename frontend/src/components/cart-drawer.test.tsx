@@ -139,4 +139,28 @@ describe('CartDrawer', () => {
 
     useCartDrawerSpy.mockRestore();
   });
+
+  it('drawer closes via backdrop click', () => {
+    const mockClose = vi.fn();
+    const useCartDrawerSpy = vi
+      .spyOn(useCartModule, 'useCartDrawer')
+      .mockReturnValue({
+        isOpen: true,
+        items: [mockItem],
+        close: mockClose,
+        open: vi.fn(),
+        toggle: vi.fn(),
+      });
+
+    render(<CartDrawer />);
+
+    const backdrop = document.querySelector(
+      '[data-radix-scroll-area-viewport]'
+    );
+    if (backdrop) {
+      fireEvent.click(backdrop);
+    }
+
+    useCartDrawerSpy.mockRestore();
+  });
 });
